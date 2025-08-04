@@ -1,0 +1,15 @@
+# Vercel 部署時忽略的文件
+.env.local
+.env.*.local
+node_modules
+.git
+.gitignore
+README.md
+*.md
+!package.json
+!public/
+!src/
+!next.config.ts
+!tsconfig.json
+!vercel.json
+!package-lock.json
