@@ -223,30 +223,28 @@ export const scheduleOperations = {
 export async function setupDatabase() {
   initDatabase();
 
-  // 只在第一次初始化時創建管理員用戶
-  if (!memoryDB.initialized || memoryDB.users.length === 0) {
-    // 檢查是否已有管理員用戶
-    const adminExists = userOperations.getUserByUsername('admin');
+  // 檢查是否已有管理員用戶，如果沒有就創建
+  const adminExists = userOperations.getUserByUsername('admin');
+  
+  if (!adminExists) {
+    console.log('Creating default admin user...');
+    // 創建預設管理員用戶
+    await userOperations.createUser({
+      username: 'admin',
+      email: 'admin@hospital.com',
+      password: 'admin123',
+      role: 'admin',
+      name: '系統管理員',
+      department: 'IT'
+    });
     
-    if (!adminExists) {
-      // 創建預設管理員用戶
-      await userOperations.createUser({
-        username: 'admin',
-        email: 'admin@hospital.com',
-        password: 'admin123',
-        role: 'admin',
-        name: '系統管理員',
-        department: 'IT'
-      });
-      
-      console.log('Default admin user created: admin/admin123');
-    } else {
-      console.log('Admin user already exists');
-    }
-    memoryDB.initialized = true;
+    console.log('Default admin user created: admin/admin123');
   } else {
-    console.log('Database already initialized');
+    console.log('Admin user already exists');
   }
+  
+  memoryDB.initialized = true;
+  console.log('Database setup completed. Total users:', memoryDB.users.length);
 }
 
 // 關閉資料庫連接（記憶體版本不需要）

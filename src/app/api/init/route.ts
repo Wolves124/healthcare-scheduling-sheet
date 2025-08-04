@@ -4,16 +4,11 @@ import { setupDatabase } from '@/lib/database';
 // POST - 初始化資料庫
 export async function POST(request: NextRequest) {
   try {
-    // 檢查是否為開發環境或首次設置
-    const isDevelopment = process.env.NODE_ENV === 'development';
+    // 在生產環境也允許初始化，用於 Vercel 首次部署
     const { force } = await request.json().catch(() => ({}));
-
-    if (!isDevelopment && !force) {
-      return NextResponse.json(
-        { success: false, error: '僅在開發環境下允許初始化資料庫' },
-        { status: 403 }
-      );
-    }
+    
+    // 總是允許初始化，因為我們使用記憶體資料庫
+    console.log('Initializing database for environment:', process.env.NODE_ENV);
 
     await setupDatabase();
 

@@ -1,5 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scheduleOperations, userOperations } from '@/lib/database';
+import { scheduleOperations, userOperations, setupDatabase } from '@/lib/database';
+
+export async function GET(request: NextRequest) {
+  try {
+    // 確保資料庫已初始化
+    await setupDatabase();
+    
+    // 獲取所有用戶（僅用於調試）
+    const users = userOperations.getAllUsers();
+    
+    // 檢查 admin 用戶
+    const adminUser = userOperations.getUserByUsername('admin');
+    
+    return NextResponse.json({
+      success: true,
+      totalUsers: users.length,
+      adminExists: !!adminUser,
+      users: users.map(user => ({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+        department: user.department
+      }))
+    });
+  } catch (error) {
+    console.error('Error in test data GET:', error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
