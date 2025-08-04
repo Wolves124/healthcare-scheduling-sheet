@@ -43,10 +43,38 @@
 2. 編輯 `NEXTAUTH_URL` 為您的實際域名
 3. 觸發重新部署（Settings → Deployments → 最新部署 → Redeploy）
 
-## 🧪 測試
+## 🧪 測試和故障排除
 部署完成後：
+
+### 1. 首先檢查資料庫是否初始化
+訪問：`https://your-domain.vercel.app/api/test-data`
+應該看到：
+```json
+{
+  "success": true,
+  "totalUsers": 1,
+  "adminExists": true
+}
+```
+
+### 2. 手動初始化資料庫（如果上面失敗）
+訪問：`https://your-domain.vercel.app/api/init`
+使用 POST 請求，或在瀏覽器開發者工具中執行：
+```javascript
+fetch('/api/init', { method: 'POST' })
+  .then(r => r.json())
+  .then(console.log)
+```
+
+### 3. 測試登入
+- 前往：`https://your-domain.vercel.app/auth/signin`
 - 使用測試帳號登入：admin / admin123
-- 測試所有功能是否正常
+- 如果失敗，檢查瀏覽器開發者工具的 Network 和 Console 標籤
+
+### 4. 檢查 Vercel 日誌
+1. 前往 Vercel Dashboard → 您的專案
+2. 點擊 "Deployments" → 最新部署 → "View Details"
+3. 查看 "Functions" 標籤下的錯誤日誌
 
 ## 🔧 如果還是失敗
 嘗試在項目設置中：

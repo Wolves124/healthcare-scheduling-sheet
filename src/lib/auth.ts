@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { userOperations } from '@/lib/database';
+import { userOperations, setupDatabase } from '@/lib/database';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,6 +12,14 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         console.log('NextAuth authorize called with:', { username: credentials?.username, hasPassword: !!credentials?.password });
+        
+        // 確保資料庫已初始化
+        try {
+          await setupDatabase();
+          console.log('Database initialized for auth');
+        } catch (error) {
+          console.error('Failed to initialize database:', error);
+        }
         
         if (!credentials?.username || !credentials?.password) {
           console.log('Missing credentials');
