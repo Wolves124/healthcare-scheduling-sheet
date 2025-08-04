@@ -46,7 +46,11 @@
 ## 🧪 測試和故障排除
 部署完成後：
 
-### 1. 首先檢查資料庫是否初始化
+### 1. 首先檢查環境變數是否正確設置
+訪問：`https://your-domain.vercel.app/debug`
+這會顯示一個調試頁面，幫助您檢查系統狀態。
+
+### 2. 檢查資料庫是否初始化
 訪問：`https://your-domain.vercel.app/api/test-data`
 應該看到：
 ```json
@@ -56,6 +60,13 @@
   "adminExists": true
 }
 ```
+
+### 3. 檢查環境變數（重要！）
+確保在 Vercel 中設置了所有必要的環境變數：
+- `NEXTAUTH_SECRET` - 必須設置，否則認證會失敗
+- `NEXTAUTH_URL` - 必須是您的實際 Vercel 域名
+- `GOOGLE_SPREADSHEET_ID` - Google Sheets ID
+- `GOOGLE_CREDENTIALS` - 完整的 JSON 憑證字串
 
 ### 2. 手動初始化資料庫（如果上面失敗）
 訪問：`https://your-domain.vercel.app/api/init`

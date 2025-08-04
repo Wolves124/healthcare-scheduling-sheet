@@ -9,9 +9,31 @@ interface DebugInfo {
   error?: string;
 }
 
+interface EnvInfo {
+  NEXTAUTH_SECRET: boolean;
+  NEXTAUTH_URL: string;
+  GOOGLE_SPREADSHEET_ID: boolean;
+  GOOGLE_CREDENTIALS: boolean;
+  NODE_ENV: string;
+}
+
 export default function DebugPage() {
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
+  const [envInfo, setEnvInfo] = useState<EnvInfo | null>(null);
   const [initStatus, setInitStatus] = useState<string>('');
+
+  const checkEnvironment = async () => {
+    try {
+      const response = await fetch('/api/check-env');
+      const data = await response.json();
+      
+      if (data.success) {
+        setEnvInfo(data.environment);
+      }
+    } catch (error) {
+      console.error('Failed to check environment:', error);
+    }
+  };
 
   const checkDatabase = async () => {
     try {
@@ -64,6 +86,7 @@ export default function DebugPage() {
 
   useEffect(() => {
     checkDatabase();
+    checkEnvironment();
   }, []);
 
   return (
@@ -73,6 +96,21 @@ export default function DebugPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-6">系統調試頁面</h1>
           
           <div className="space-y-4">
+            <div className="border rounded-lg p-4">
+              <h2 className="text-lg font-semibold mb-2">環境變數狀態</h2>
+              {envInfo ? (
+                <div className="space-y-2">
+                  <p><strong>NEXTAUTH_SECRET:</strong> {envInfo.NEXTAUTH_SECRET ? '✅ 已設置' : '❌ 未設置（必須！）'}</p>
+                  <p><strong>NEXTAUTH_URL:</strong> {envInfo.NEXTAUTH_URL === 'NOT_SET' ? '❌ 未設置' : `✅ ${envInfo.NEXTAUTH_URL}`}</p>
+                  <p><strong>GOOGLE_SPREADSHEET_ID:</strong> {envInfo.GOOGLE_SPREADSHEET_ID ? '✅ 已設置' : '❌ 未設置'}</p>
+                  <p><strong>GOOGLE_CREDENTIALS:</strong> {envInfo.GOOGLE_CREDENTIALS ? '✅ 已設置' : '❌ 未設置'}</p>
+                  <p><strong>NODE_ENV:</strong> {envInfo.NODE_ENV}</p>
+                </div>
+              ) : (
+                <p>載入中...</p>
+              )}
+            </div>
+
             <div className="border rounded-lg p-4">
               <h2 className="text-lg font-semibold mb-2">資料庫狀態</h2>
               {debugInfo ? (
@@ -91,7 +129,7 @@ export default function DebugPage() {
 
             <div className="flex space-x-4">
               <button
-                onClick={checkDatabase}
+                onClick={() => { checkDatabase(); checkEnvironment(); }}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
                 重新檢查
